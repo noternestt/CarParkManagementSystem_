@@ -1,0 +1,59 @@
+﻿@page "/parkingslots/create"
+@using Microsoft.EntityFrameworkCore
+@using CarParkManagementSystem.Domain
+@inject IDbContextFactory<CarParkManagementSystem.Data.CarParkManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>ParkingSlot</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="ParkingSlot" OnValidSubmit="AddParkingSlot" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="slotnumber" class="form-label">SlotNumber:</label> 
+                <InputText id="slotnumber" @bind-Value="ParkingSlot.SlotNumber" class="form-control" /> 
+                <ValidationMessage For="() => ParkingSlot.SlotNumber" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="inavaliable" class="form-label">InAvaliable:</label> 
+                <InputCheckbox id="inavaliable" @bind-Value="ParkingSlot.InAvaliable" class="form-check-input" /> 
+                <ValidationMessage For="() => ParkingSlot.InAvaliable" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="floorlevel" class="form-label">FloorLevel:</label> 
+                <InputNumber id="floorlevel" @bind-Value="ParkingSlot.FloorLevel" class="form-control" /> 
+                <ValidationMessage For="() => ParkingSlot.FloorLevel" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="locationname" class="form-label">LocationName:</label> 
+                <InputText id="locationname" @bind-Value="ParkingSlot.LocationName" class="form-control" /> 
+                <ValidationMessage For="() => ParkingSlot.LocationName" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/parkingslots">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private ParkingSlot ParkingSlot { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddParkingSlot()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.ParkingSlot.Add(ParkingSlot);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/parkingslots");
+    }
+}

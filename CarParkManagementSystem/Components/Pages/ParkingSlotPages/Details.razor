@@ -1,0 +1,52 @@
+﻿@page "/parkingslots/details"
+@using Microsoft.EntityFrameworkCore
+@using CarParkManagementSystem.Domain
+@inject IDbContextFactory<CarParkManagementSystem.Data.CarParkManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>ParkingSlot</h2>
+    <hr />
+    @if (parkingslot is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">SlotNumber</dt>
+            <dd class="col-sm-10">@parkingslot.SlotNumber</dd>
+            <dt class="col-sm-2">InAvaliable</dt>
+            <dd class="col-sm-10">@parkingslot.InAvaliable</dd>
+            <dt class="col-sm-2">FloorLevel</dt>
+            <dd class="col-sm-10">@parkingslot.FloorLevel</dd>
+            <dt class="col-sm-2">LocationName</dt>
+            <dd class="col-sm-10">@parkingslot.LocationName</dd>
+        </dl>
+        <div>
+            <a href="@($"/parkingslots/edit?slotid={parkingslot.SlotID}")">Edit</a> |
+            <a href="@($"/parkingslots")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private ParkingSlot? parkingslot;
+
+    [SupplyParameterFromQuery]
+    private int SlotID { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        parkingslot = await context.ParkingSlot.FirstOrDefaultAsync(m => m.SlotID == SlotID);
+
+        if (parkingslot is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

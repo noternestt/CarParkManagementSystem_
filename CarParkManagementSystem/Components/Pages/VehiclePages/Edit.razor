@@ -1,0 +1,109 @@
+﻿@page "/vehicles/edit"
+@using Microsoft.EntityFrameworkCore
+@using CarParkManagementSystem.Domain
+@inject IDbContextFactory<CarParkManagementSystem.Data.CarParkManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Vehicle</h2>
+<hr />
+@if (Vehicle is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Vehicle" OnValidSubmit="UpdateVehicle" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Vehicle.VehicleID" value="@Vehicle.VehicleID" />
+                <div class="mb-3">
+                    <label for="licenseplate" class="form-label">LicensePlate:</label>
+                    <InputText id="licenseplate" @bind-Value="Vehicle.LicensePlate" class="form-control" />
+                    <ValidationMessage For="() => Vehicle.LicensePlate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="vehicletype" class="form-label">VehicleType:</label>
+                    <InputText id="vehicletype" @bind-Value="Vehicle.VehicleType" class="form-control" />
+                    <ValidationMessage For="() => Vehicle.VehicleType" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="model" class="form-label">Model:</label>
+                    <InputText id="model" @bind-Value="Vehicle.Model" class="form-control" />
+                    <ValidationMessage For="() => Vehicle.Model" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="color" class="form-label">Color:</label>
+                    <InputText id="color" @bind-Value="Vehicle.Color" class="form-control" />
+                    <ValidationMessage For="() => Vehicle.Color" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="userid" class="form-label">UserID:</label>
+                    <InputNumber id="userid" @bind-Value="Vehicle.UserID" class="form-control" />
+                    <ValidationMessage For="() => Vehicle.UserID" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/vehicles">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int VehicleID { get; set; }
+
+    [SupplyParameterFromForm]
+    private Vehicle? Vehicle { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Vehicle ??= await context.Vehicle.FirstOrDefaultAsync(m => m.VehicleID == VehicleID);
+
+        if (Vehicle is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateVehicle()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Vehicle!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!VehicleExists(Vehicle!.VehicleID))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/vehicles");
+    }
+
+    private bool VehicleExists(int vehicleid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Vehicle.Any(e => e.VehicleID == vehicleid);
+    }
+}

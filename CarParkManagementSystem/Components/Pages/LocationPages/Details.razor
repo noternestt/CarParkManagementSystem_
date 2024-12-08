@@ -1,0 +1,50 @@
+﻿@page "/locations/details"
+@using Microsoft.EntityFrameworkCore
+@using CarParkManagementSystem.Domain
+@inject IDbContextFactory<CarParkManagementSystem.Data.CarParkManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Location</h2>
+    <hr />
+    @if (location is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Address</dt>
+            <dd class="col-sm-10">@location.Address</dd>
+            <dt class="col-sm-2">PostalCode</dt>
+            <dd class="col-sm-10">@location.PostalCode</dd>
+            <dt class="col-sm-2">Capacity</dt>
+            <dd class="col-sm-10">@location.Capacity</dd>
+        </dl>
+        <div>
+            <a href="@($"/locations/edit?locationname={location.LocationName}")">Edit</a> |
+            <a href="@($"/locations")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Location? location;
+
+    [SupplyParameterFromQuery]
+    private string LocationName { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        location = await context.Location.FirstOrDefaultAsync(m => m.LocationName == LocationName);
+
+        if (location is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

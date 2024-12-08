@@ -1,0 +1,64 @@
+﻿@page "/vehicles/create"
+@using Microsoft.EntityFrameworkCore
+@using CarParkManagementSystem.Domain
+@inject IDbContextFactory<CarParkManagementSystem.Data.CarParkManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Vehicle</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Vehicle" OnValidSubmit="AddVehicle" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="licenseplate" class="form-label">LicensePlate:</label> 
+                <InputText id="licenseplate" @bind-Value="Vehicle.LicensePlate" class="form-control" /> 
+                <ValidationMessage For="() => Vehicle.LicensePlate" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="vehicletype" class="form-label">VehicleType:</label> 
+                <InputText id="vehicletype" @bind-Value="Vehicle.VehicleType" class="form-control" /> 
+                <ValidationMessage For="() => Vehicle.VehicleType" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="model" class="form-label">Model:</label> 
+                <InputText id="model" @bind-Value="Vehicle.Model" class="form-control" /> 
+                <ValidationMessage For="() => Vehicle.Model" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="color" class="form-label">Color:</label> 
+                <InputText id="color" @bind-Value="Vehicle.Color" class="form-control" /> 
+                <ValidationMessage For="() => Vehicle.Color" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="userid" class="form-label">UserID:</label> 
+                <InputNumber id="userid" @bind-Value="Vehicle.UserID" class="form-control" /> 
+                <ValidationMessage For="() => Vehicle.UserID" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/vehicles">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Vehicle Vehicle { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddVehicle()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Vehicle.Add(Vehicle);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/vehicles");
+    }
+}

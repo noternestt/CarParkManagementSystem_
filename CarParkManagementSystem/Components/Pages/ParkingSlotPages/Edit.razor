@@ -1,0 +1,104 @@
+﻿@page "/parkingslots/edit"
+@using Microsoft.EntityFrameworkCore
+@using CarParkManagementSystem.Domain
+@inject IDbContextFactory<CarParkManagementSystem.Data.CarParkManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>ParkingSlot</h2>
+<hr />
+@if (ParkingSlot is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="ParkingSlot" OnValidSubmit="UpdateParkingSlot" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="ParkingSlot.SlotID" value="@ParkingSlot.SlotID" />
+                <div class="mb-3">
+                    <label for="slotnumber" class="form-label">SlotNumber:</label>
+                    <InputText id="slotnumber" @bind-Value="ParkingSlot.SlotNumber" class="form-control" />
+                    <ValidationMessage For="() => ParkingSlot.SlotNumber" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="inavaliable" class="form-label">InAvaliable:</label>
+                    <InputCheckbox id="inavaliable" @bind-Value="ParkingSlot.InAvaliable" class="form-check-input" />
+                    <ValidationMessage For="() => ParkingSlot.InAvaliable" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="floorlevel" class="form-label">FloorLevel:</label>
+                    <InputNumber id="floorlevel" @bind-Value="ParkingSlot.FloorLevel" class="form-control" />
+                    <ValidationMessage For="() => ParkingSlot.FloorLevel" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="locationname" class="form-label">LocationName:</label>
+                    <InputText id="locationname" @bind-Value="ParkingSlot.LocationName" class="form-control" />
+                    <ValidationMessage For="() => ParkingSlot.LocationName" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/parkingslots">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int SlotID { get; set; }
+
+    [SupplyParameterFromForm]
+    private ParkingSlot? ParkingSlot { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        ParkingSlot ??= await context.ParkingSlot.FirstOrDefaultAsync(m => m.SlotID == SlotID);
+
+        if (ParkingSlot is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateParkingSlot()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(ParkingSlot!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ParkingSlotExists(ParkingSlot!.SlotID))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/parkingslots");
+    }
+
+    private bool ParkingSlotExists(int slotid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.ParkingSlot.Any(e => e.SlotID == slotid);
+    }
+}

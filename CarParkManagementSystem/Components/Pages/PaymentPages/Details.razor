@@ -1,0 +1,54 @@
+﻿@page "/payments/details"
+@using Microsoft.EntityFrameworkCore
+@using CarParkManagementSystem.Domain
+@inject IDbContextFactory<CarParkManagementSystem.Data.CarParkManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Payment</h2>
+    <hr />
+    @if (payment is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Amount</dt>
+            <dd class="col-sm-10">@payment.Amount</dd>
+            <dt class="col-sm-2">CardNumber</dt>
+            <dd class="col-sm-10">@payment.CardNumber</dd>
+            <dt class="col-sm-2">PaymentDate</dt>
+            <dd class="col-sm-10">@payment.PaymentDate</dd>
+            <dt class="col-sm-2">PaymentStatus</dt>
+            <dd class="col-sm-10">@payment.PaymentStatus</dd>
+            <dt class="col-sm-2">BookingID</dt>
+            <dd class="col-sm-10">@payment.BookingID</dd>
+        </dl>
+        <div>
+            <a href="@($"/payments/edit?paymentid={payment.PaymentID}")">Edit</a> |
+            <a href="@($"/payments")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Payment? payment;
+
+    [SupplyParameterFromQuery]
+    private int PaymentID { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        payment = await context.Payment.FirstOrDefaultAsync(m => m.PaymentID == PaymentID);
+
+        if (payment is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

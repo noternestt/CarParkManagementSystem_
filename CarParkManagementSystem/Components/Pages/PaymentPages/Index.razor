@@ -1,0 +1,40 @@
+﻿@page "/payments"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using CarParkManagementSystem.Domain
+@using CarParkManagementSystem.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<CarParkManagementSystem.Data.CarParkManagementSystemContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="payments/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Payment">
+    <PropertyColumn Property="payment => payment.Amount" />
+    <PropertyColumn Property="payment => payment.CardNumber" />
+    <PropertyColumn Property="payment => payment.PaymentDate" />
+    <PropertyColumn Property="payment => payment.PaymentStatus" />
+    <PropertyColumn Property="payment => payment.BookingID" />
+
+    <TemplateColumn Context="payment">
+        <a href="@($"payments/edit?paymentid={payment.PaymentID}")">Edit</a> |
+        <a href="@($"payments/details?paymentid={payment.PaymentID}")">Details</a> |
+        <a href="@($"payments/delete?paymentid={payment.PaymentID}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private CarParkManagementSystemContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

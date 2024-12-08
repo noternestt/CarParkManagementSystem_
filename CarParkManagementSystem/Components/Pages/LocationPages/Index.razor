@@ -1,0 +1,38 @@
+﻿@page "/locations"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using CarParkManagementSystem.Domain
+@using CarParkManagementSystem.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<CarParkManagementSystem.Data.CarParkManagementSystemContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="locations/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Location">
+    <PropertyColumn Property="location => location.Address" />
+    <PropertyColumn Property="location => location.PostalCode" />
+    <PropertyColumn Property="location => location.Capacity" />
+
+    <TemplateColumn Context="location">
+        <a href="@($"locations/edit?locationname={location.LocationName}")">Edit</a> |
+        <a href="@($"locations/details?locationname={location.LocationName}")">Details</a> |
+        <a href="@($"locations/delete?locationname={location.LocationName}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private CarParkManagementSystemContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

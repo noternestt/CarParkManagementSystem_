@@ -1,0 +1,54 @@
+﻿@page "/vehicles/details"
+@using Microsoft.EntityFrameworkCore
+@using CarParkManagementSystem.Domain
+@inject IDbContextFactory<CarParkManagementSystem.Data.CarParkManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Vehicle</h2>
+    <hr />
+    @if (vehicle is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">LicensePlate</dt>
+            <dd class="col-sm-10">@vehicle.LicensePlate</dd>
+            <dt class="col-sm-2">VehicleType</dt>
+            <dd class="col-sm-10">@vehicle.VehicleType</dd>
+            <dt class="col-sm-2">Model</dt>
+            <dd class="col-sm-10">@vehicle.Model</dd>
+            <dt class="col-sm-2">Color</dt>
+            <dd class="col-sm-10">@vehicle.Color</dd>
+            <dt class="col-sm-2">UserID</dt>
+            <dd class="col-sm-10">@vehicle.UserID</dd>
+        </dl>
+        <div>
+            <a href="@($"/vehicles/edit?vehicleid={vehicle.VehicleID}")">Edit</a> |
+            <a href="@($"/vehicles")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Vehicle? vehicle;
+
+    [SupplyParameterFromQuery]
+    private int VehicleID { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        vehicle = await context.Vehicle.FirstOrDefaultAsync(m => m.VehicleID == VehicleID);
+
+        if (vehicle is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}
