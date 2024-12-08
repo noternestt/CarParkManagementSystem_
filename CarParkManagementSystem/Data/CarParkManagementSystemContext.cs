@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using CarParkManagementSystem.Domain;
+using CarParkManagementSystem.Data;
 
 namespace CarParkManagementSystem.Data
 {
-    public class CarParkManagementSystemContext : DbContext
+    public class CarParkManagementSystemContext(DbContextOptions<CarParkManagementSystemContext> options) : IdentityDbContext<CarParkManagementSystemUser>(options)
     {
-        public CarParkManagementSystemContext (DbContextOptions<CarParkManagementSystemContext> options)
-            : base(options)
-        {
-        }
 
         public DbSet<CarParkManagementSystem.Domain.Booking> Booking { get; set; } = default!;
         public DbSet<CarParkManagementSystem.Domain.Location> Location { get; set; } = default!;
